@@ -9,6 +9,7 @@ from random import seed, randint, choice, shuffle
 from PIL import Image, ImageFont, ImageDraw, ImageTk
 from binascii import crc32
 from subprocess import call
+import webbrowser
 
 
 ##
@@ -236,25 +237,16 @@ def installDiversityMod():
     # update gui stuffs
     dm.update_idletasks()
 
-    # if Rebirth is running, kill it (returns an ugly error if Rebirth is not running, but just ignore it I guess)
-#    try:
-    #    print("Attempting to kill Isaac ...\n")
+    # Safe cross-platform Isaac process killing
     for p in psutil.process_iter():
-        if p.name() == 'isaac-ng.exe':
-            call(['taskkill', '/im', 'isaac-ng.exe', '/f'])
-#    except OSError:
-    #    print("There was an error closing Rebirth.")
+        try:
+            if 'isaac' in p.name().lower():
+                p.terminate()
+        except:
+            pass # This is totally kosher, I'm just avoiding zombies.
 
-    # re/start Rebirth
-#    try:
-    if os.path.exists(resourcepath + "/../../../../steam.exe"):
-#            print("Found steam ...")
-        call([resourcepath + '/../../../../steam.exe', '-applaunch', '250900'])
-    elif os.path.exists(resourcepath + "/../isaac-ng.exe"):
-#            print("No Steam, but found isaac-ng.exe ...")
-        call(resourcepath + '/../isaac-ng.exe')
-#    except OSError:
-#        print("Starting Rebirth failed.\nPress Enter to close.")
+    # Launches Isaac in one line, installs if necessary, fully cross platform
+    webbrowser.open('steam://rungameid/250900')
 
 def closeDiversityMod():
     # remove all the files and folders EXCEPT packed and dmtmpfolder
